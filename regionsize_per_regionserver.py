@@ -30,11 +30,11 @@ def generate_data(path):
                                 strip_data = newline.strip()
                                 split_data = strip_data.split( )
                                 try:
-                                        string_to_int = int(split_data[1])
+                                        size_of_region = int(split_data[1])
                                 except ValueError:
                                         print("Failure to convert the string to int" +split_data[1])
                                 if string_to_int == 0:
-                                        print "%s,%s,%s" % (unicode(files), unicode(split_data[0]), unicode(string_to_int))
+                                        print "%s,%s,%s" % (unicode(files), unicode(split_data[0]), unicode(size_of_region))
 
 
 generate_files(var1,var2)
