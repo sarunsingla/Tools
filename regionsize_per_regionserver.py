@@ -3,9 +3,7 @@ import os
 import commands
 
 var1 = raw_input("Please enter region server list to parse and check: ")
-print "you entered", var1
 var2 = raw_input("Please enter path to store output: ")
-print "you entered", var2
 regions_server_list = "%s" %var1
 path_to_store = "%s" %var2
 
