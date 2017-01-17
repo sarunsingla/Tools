@@ -14,7 +14,7 @@ def generate_files(region_list,path_to_store_data):
         with open(region_list,"r") as f:
                 for line in f:
                         regionserver = line.strip()
-                        os.system("curl -s http://%s:60030/jmx|grep \"table_cmtsdbv2\"|grep storeFileSize|awk -F \"[_:]\" '{print $6,$9}'|cut -d \',\' -f1 >%s/output_%s" % (unicode(regionserver),  unicode(path_to_store_data), unicode(regionserver)))
+                        os.system("curl -s http://%s:60030/jmx|grep storeFileSize|awk -F \"[_:]\" '{print $6,$9}'|cut -d \',\' -f1 >%s/output_%s" % (unicode(regionserver),  unicode(path_to_store_data), unicode(regionserver)))
 
 
 
