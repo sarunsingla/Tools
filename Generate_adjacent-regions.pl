@@ -81,7 +81,7 @@ if($lsr_file && $meta_file)
        	foreach $check_val(@new_arr)
        	{
        	    @size1=split /:/,$check_val;
-       		if($size1[1] < "$size_for_region")
+       		if($size1[1] <= "$size_for_region")
        		{
        			print "$size1[0] : $size1[1] \n";
        			print S "Searching for region: $size1[0]\n";
