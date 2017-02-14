@@ -88,8 +88,7 @@ if($lsr_file && $meta_file)
        			print S "You can merge the regions to any of the regions\n";
        			$adj_regions= `cat $file2|grep -C3 $size1[0]|grep -v $size1[0]|grep Regions`;
        			print S "$adj_regions\n";
-       			print S "MOVING TO THE NEXT ONE\n";
-       			print S "***************************\n";
+       			print S "\n";
        		}
        	}
 }
