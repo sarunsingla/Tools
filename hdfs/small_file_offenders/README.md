@@ -22,7 +22,7 @@ then pipe the output file (fsimage-delimited.tsv) into this program, eg. cat fsi
 
 # Example
 ```
-HW13177:~ clukasik$ ./fsimage_users.pl ./fsimage-delimited.tsv
+HW32321:~ ssingla$ ./fsimage_users.pl ./fsimage-delimited.tsv
 Limiting output to top 10 items per list. A small file is considered anything less than 134217728. Edit the script to adjust these values.
 Average File Size (bytes): 0; Users:
 	hive (total size: 0; number of files: 12)
