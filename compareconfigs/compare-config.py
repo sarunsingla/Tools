@@ -14,11 +14,11 @@
 ############################################################################
 import json
 import os
-
 import xmltodict
 import glob
 import sys
-import texttable as tt
+from datetime import datetime
+
 
 '''Making sure we are taking the required user input'''
 if len(sys.argv) < 4:
@@ -32,7 +32,9 @@ before_upgrade = sys.argv[1]
 after_upgrade = sys.argv[2]
 json_out = sys.argv[3]
 
+
 class cluster_compare():
+
     '''Function converting xml files to Json files'''
     def xmltojsonconverter(self,before_upgrade,after_upgrade,json_out):
         for filename in os.listdir(before_upgrade):
@@ -62,6 +64,7 @@ class cluster_compare():
     '''For future enhancements where you can functionalize table creation'''
     def table_gen(self,row):
         return
+
 
 # load_compare_files=> Loads json files and compares files with same/similar names. e.g hdfs-site.xml to hdfs-site1.xml
     def load_compare_files(self,file1, file2):
@@ -101,60 +104,65 @@ class cluster_compare():
                 if miss_conf2 == "True":
                     not_present_file2.append(json_data['name'])
         '''Generating Tabular output for configuration difference s between the 2 files'''
-       ## #print("PRINTING DIFFERENCES BEFORE AND AFTER: ")
-        tab = tt.Texttable()
-        headings = ['Configuration Name','BeforeUpgrade','AfterUpgrade']
-        tab.header(headings)
-
-        for row in zip(conf_diff,conf_diff_val1,conf_diff_val2):
-            tab.add_row(row)
-        s = tab.draw()
-        print("CONFIG VALUES CHANGED BEFORE AND AFTER UPGRADE :")
-        print("================================================\n")
         # IN THE CONFIGConfiguration Difference before and after upgrade")
-        print(s)
+        print("<br>")
+        table = "<table id=\"configs\">\n"
+        data = ["Configuration Name", "Before Upgrade", "After Upgrade"]
+        table += "  <tr>\n"
+        for column in data:
+            table += "    <th>{0}</th>\n".format(column.strip())
+        table += "  <tr>\n"
+
+        for line in zip(conf_diff, conf_diff_val1, conf_diff_val2):
+            table += "  <tr>\n"
+            for column in line:
+                table += "    <td>{0}</td>\n".format(column.strip())
+            table += "  </tr>\n"
+
+        table += "</table>"
+        print(table)
 
         '''Generating Tabular output for before and after upgrades'''
-        tab1 = tt.Texttable()
-        headings1 = ['Configuration Present BEFORE Upgrade','Configuration Present After Upgrade']
-        tab1.header(headings1)
-        print("")
-        print("CONFIGS MISSING BEFORE AND AFTER UPGRADE:")
-        print("=========================================\n")
-        for present in zip(not_present_file1,not_present_file2):
-            tab1.add_row(present)
-        draw1= tab1.draw()
-        print(draw1)
+        print("<br>")
+        print("<h2>Configurations that were present before the upgrade and are missing now, compared to configurations that are added new after the upgrade.</h2>")
+        table = "<table id=\"configs\">\n"
+        data = ["Configurations Present Before Upgrade", "Configurations Added After Upgrade"]
+        table += "  <tr>\n"
+        for column in data:
+            table += "    <th>{0}</th>\n".format(column.strip())
+        table += "  <tr>\n"
 
-'''Function to walk over all the json files generated and calls function load_compare_files to compare'''
-def glob_parse(pathname, name):
-    filename = (name + "*.json")
-    pathname = (pathname + "/" + filename)
-    mylist = [f for f in glob.glob(pathname)]
-    if not mylist:
-        print("Config files missing for "+name+"-site.xml")
-        print("")
-    elif len(mylist) > 2:
-        x = 0
-        print("======================================================================")
-        print("Cases where we have multiple config file for a component after upgrade", name.upper())
-        print("=======================================================================\n")
+        for line in zip(not_present_file1,not_present_file2):
+            table += "  <tr>\n"
+            for column in line:
+                table += "    <td>{0}</td>\n".format(column.strip())
+            table += "  </tr>\n"
+        table += "</table>"
+        print(table)
 
-        while x < len(mylist):
-            print("IN While loop :")
-            print("Comparing the following : ")
-            print(mylist[x], mylist[x + 1])
-            class_inst.load_compare_files(mylist[x], mylist[x + 1])
-            print("Comparing the following : ")
-            print(mylist[x], mylist[x + 2])
-            class_inst.load_compare_files(mylist[x], mylist[x + 2])
-            break
-    else:
-        print("======================================================\n")
-        print("COMPARING FOR THE FOLLOWING COMPONENT =>", name.upper())
-        print(mylist)
-        print("======================================================\n")
-        class_inst.load_compare_files(mylist[0], mylist[1])
+    '''Function to walk over all the json files generated and calls function load_compare_files to compare'''
+    def glob_parse(self,pathname, name):
+        filename = (name + "*.json")
+        pathname = (pathname + "/" + filename)
+        mylist = [f for f in glob.glob(pathname)]
+        if not mylist:
+            print("Config files missing for "+name+"-site.xml")
+            print("")
+        elif len(mylist) > 2:
+            x = 0
+            #print("<br>")
+            print("<h1>"+name.upper()+"</h1>")
+            while x < len(mylist):
+                print("<h2><i>Multiple files and hence generating a separate difference/compare for each sub-component</i></h2>")
+                print("<h3>Comparing {} and {} :</h3>".format(mylist[x].split("/")[1],mylist[x + 1].split("/")[1]))
+                class_inst.load_compare_files(mylist[x], mylist[x + 1])
+                print("<h3>Comparing {} and {} :</h3>".format(mylist[x].split("/")[1],mylist[x + 2].split("/")[1]))
+                class_inst.load_compare_files(mylist[x], mylist[x + 2])
+                break
+        else:
+            print("<br>")
+            print("<h1>Component Read : " + name.upper() + "</h1>")
+            class_inst.load_compare_files(mylist[0], mylist[1])
 
 class_inst = cluster_compare()
 class_inst.xmltojsonconverter(before_upgrade,after_upgrade, json_out)
@@ -162,4 +170,35 @@ class_inst.xmltojsonconverter(before_upgrade,after_upgrade, json_out)
 '''Add more componenbts here for comparing the xml before and after the upgrade'''
 components = {'core','hdfs','hive','yarn','mapred'}
 for key in components:
-    glob_parse(json_out, key)
+    now = datetime.now()
+    sys.stdout = open("output.html", "a+")
+    print('''<!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            #configs {
+              font-family: Arial, Helvetica, sans-serif;
+              border-collapse: collapse;
+              width: 90%;
+              table-layout: fixed;
+            }
+            #configs td, #configs th {
+              border: 1px solid #ddd;
+              padding: 4px;
+              word-wrap: break-word;
+            }
+            #configs tr:nth-child(even){background-color: #f2f2f2;}
+            #configs tr:hover {background-color: #ddd;}
+            #configs th {
+              padding-top: 8px;
+              padding-bottom: 8px;
+              text-align: left;
+              background-color: #f96702;
+              color: white;
+            }
+        </style>
+        <title>CLUSTER COMPARE</title>
+    </head>
+    <body>''')
+    class_inst.glob_parse(json_out, key)
+    sys.stdout.close()
